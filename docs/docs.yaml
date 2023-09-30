@@ -1,0 +1,304 @@
+components:
+  securitySchemes:
+    apikey:
+      type: apiKey
+      in: header
+      name: apikey
+
+paths:
+  /:
+    get:
+      summary: Домашняя страница
+      tags: [Домашняя]
+      description: "Отправляет на главную страницу"
+      produces:
+        - text/plain
+      responses:
+        200:
+          description: Главная страница
+        500:
+          description: Ошибка сервера
+
+  /login:
+    post:
+      tags: [API]
+      summary: Создать API ключ
+      description: Создать API ключ ("API V3")
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              name:
+                type: string
+            example:
+              name: roma
+      produces:
+        - text/plain
+      responses:
+        200:
+          description: "Отправляет API ключ"
+        201:
+          description: "Пользователь создан, сгенерирован API-ключ"
+        500:
+          description: "Ошибка сервера"
+
+  /user/delete:
+    delete:
+      tags: [API]
+      security:
+        - apikey: []
+      summary: Удалить API ключ
+      description: Удалить API ключ ("API V3"), ключ вводится в headers
+      produces:
+        - text/plain
+      responses:
+        200:
+          description: API ключ удален
+        403:
+          description: API ключа нет
+        500:
+          description: Ошибка сервера
+
+  /comments?apikey={apikey}:
+    get:
+      tags: [Комментарии]
+      summary: Вывести все комментарии ("API V1,V2")
+      description: Возвращает все комментарии 
+      parameters:
+        - in: path
+          name: apikey
+          type: string
+          required: true
+          Description: Введи apikey.
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Возвращает все комментарии
+        403:
+          description: Неверный apikey
+        500:
+          description: Ошибка сервера
+    post:
+      security:
+        - apikey: []
+      tags: [Комментарии]
+      summary: Созать комментарий
+      description: Созать комментарий
+      parameters:
+        - in: path
+          name: apikey
+          type: string
+          required: true
+          Description: Введи apikey. 
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              name: 
+                type: apikey
+              Age: 
+                type: int
+              comments: 
+                type: string
+            example:
+              name: roman
+              Age: 21
+              comments: wassup
+      produces:
+        - text/plain
+      responses:
+        200:
+          description: Отправляет "Комментарий создан"
+        400:
+          description: Неверные данные
+        403:
+          description: Неверный API ключ
+        500:
+          description: Ошибка сервера
+
+  /comments/{id}:
+    get:
+      tags: [Комментарии]
+      summary: Найти один комментарий
+      description: Возвращает комментарий ("API V2")
+      parameters:
+          in: path
+          name: id
+          type: string
+          required: true
+          description: ID комментария.
+      responses:
+        200:
+          description: Отпраляет JSON комментарий
+        406:
+          description: Неверный ID
+        500:
+          description: Ошибка сервера
+
+  /models:
+    get:
+      tags: [Модели]
+      summary: Вывести все модели
+      description: Возвращает все модели с ID ("API V3")
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Отправляет массив моделей
+          content:
+            application/json:
+              schema:      # Request body contents
+                type: object
+                properties:
+                  _id:
+                    type: string
+                  name_model:
+                    type: string
+              example:   # Sample object
+                _id: 10
+                name_model: Triangle
+        404:
+          description: Нет модели в базе
+        500:
+          description: Ошибка сервера
+    post:
+      security:
+        - apikey: []
+      tags: [Модели]
+      summary: Создать новую модель
+      description: Создать новую модель ("API V3")
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              Name:
+                type: string
+              Type:
+                type: string
+              Author:
+                type: string
+            example:
+              Name: roma
+              Type: cube
+              Author: sergey
+      produces:
+        - text/plain
+      responses:
+        201:
+          description: "Возвращает Модель добавлена!"
+        400:
+          description: Неверные данные
+        403:
+          description: Неправильный API ключ
+        500:
+          description: Ошибка сервера
+
+  /models/{id}:
+    get:
+      security:
+        - apikey: []
+      summary: Вывести модель по ID
+      tags: [Модели]
+      description: Вывести модель по ID (API V3)
+      parameters:
+        - in: path
+          name: id
+          type: string
+          required: true
+          Description: Введи ID модели.
+      responses:
+        200:
+          description: Отправляет JSON модели
+          content:
+            application/json:
+              schema:      # Request body contents
+                type: object
+                properties:
+                  _id:
+                    type: string
+                  Name:
+                    type: string
+                  Author:
+                    type: string
+                  Type:
+                    type: string
+                  DataCreated:
+                    type: string
+                  DataUpdated:
+                    type: string
+              example:   # Sample object
+                _id: 10
+                Name: roma
+                Author: Triangle
+                Type: Cube
+                time_create: 2023-09-20T22:16:09.713Z
+                last_update: 2023-09-20T22:16:09.713Z
+        400:
+          description: Неверные данные
+        406:
+          description: неверный ID
+        500:
+          description: ошибка сервера
+
+    patch:
+      security:
+        - apikey: []
+      tags: [Модели]
+      summary: Обновить модель 
+      description: Обновить модель (API V3)
+      parameters:
+        - in: path
+          name: id
+          type: string
+          required: true
+          description: Введи ID для обновления модели.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              Type:
+                type: string
+            example:
+              Type: "Triangle"
+      produces:
+        - text/plain
+      responses:
+        200:
+          description: Модель обновлена
+        400:
+          description: Неверные данные
+        403:
+          description: Неверный API ключ
+        406:
+          description: Неверный ID
+        500:
+          description: Ошибка
+
+    delete:
+      security:
+        - apikey: []
+      tags: [Модели]
+      summary: Удалить модель
+      description: Удалить модель (API V3)
+      parameters:
+        - in: path
+          name: id
+          type: string
+          required: true
+          description: Введи ID удаляемой модели
+      responses:
+        200:
+          description: Модель удалена
+        400:
+          description: Неверные данные
+        403:
+          description: Неверный API ключ
+        406:
+          description: Неверный ID
+        500:
+          description: Ошибка
